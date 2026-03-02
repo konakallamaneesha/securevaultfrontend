@@ -42,7 +42,6 @@ export default function Sidebar({ user }) {
   // Confirm logout
   const confirmLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
     navigate("/");
   };
 
