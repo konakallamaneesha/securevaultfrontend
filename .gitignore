@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+
+=======
+>>>>>>> 2399385d75460c6448cfb9aa0854cddc6d72bc39
 # Logs
 logs
 *.log
 npm-debug.log*
+<<<<<<< HEAD
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+=======
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
@@ -22,3 +41,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+>>>>>>> 2399385d75460c6448cfb9aa0854cddc6d72bc39
