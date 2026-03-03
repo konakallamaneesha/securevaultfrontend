@@ -15,11 +15,11 @@ export default function MasterVerify() {
       const token = localStorage.getItem("token");
 
       await API.post(
-        "/auth/verify-master",
+        "/password/get",   // ✅ CHANGED HERE
         { masterPassword: master },
         {
           headers: {
-            Authorization: token,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
