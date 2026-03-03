@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://securevaultbackend-nhyk.onrender.com/api",
+  baseURL: "https://backend-3t2r.onrender.com/api",
 });
 
 export default API;
