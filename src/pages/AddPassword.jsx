@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
 import Sidebar from "../components/Sidebar";
 import API from "../services/api";
 import { FaGlobe, FaUser, FaLock } from "react-icons/fa";
 
 export default function AddPassword() {
-  const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
@@ -36,13 +34,14 @@ export default function AddPassword() {
 
     try {
       const token = localStorage.getItem("token");
+      const master = localStorage.getItem("master");
 
       await API.post(
         "/passwords",
-        form,
+        { ...form, masterPassword: master },  // ✅ send master
         {
           headers: {
-            Authorization: token,
+            Authorization: `Bearer ${token}`,  // ✅ Bearer fixed
           },
         }
       );

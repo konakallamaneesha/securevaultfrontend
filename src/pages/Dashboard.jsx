@@ -17,7 +17,19 @@ export default function Dashboard() {
 
   const fetchPasswords = async () => {
     try {
-      const res = await API.get("/passwords");
+      const token = localStorage.getItem("token");
+      const master = localStorage.getItem("master");
+
+      const res = await API.post(
+        "/passwords/get",
+        { masterPassword: master },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setPasswords(res.data);
     } catch (err) {
       console.log(err);
@@ -40,9 +52,17 @@ export default function Dashboard() {
     }, 2000);
   };
 
+  // ✅ FIXED DELETE (added Bearer)
   const confirmDelete = async () => {
     try {
-      await API.delete(`/passwords/${deleteId}`);
+      const token = localStorage.getItem("token");
+
+      await API.delete(`/passwords/${deleteId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       setPasswords(passwords.filter((item) => item._id !== deleteId));
       setDeleteId(null);
     } catch (err) {
@@ -61,7 +81,6 @@ export default function Dashboard() {
       <Sidebar user={user} />
 
       <div style={{ flex: 1, padding: "40px", marginLeft: "250px" }}>
-
         <div
           style={{
             position: "sticky",
@@ -200,7 +219,6 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );

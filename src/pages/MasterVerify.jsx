@@ -15,7 +15,7 @@ export default function MasterVerify() {
       const token = localStorage.getItem("token");
 
       await API.post(
-        "/password/get",   // ✅ CHANGED HERE
+        "/auth/verify-master",
         { masterPassword: master },
         {
           headers: {
@@ -23,6 +23,9 @@ export default function MasterVerify() {
           },
         }
       );
+
+      // ✅ store master for dashboard usage
+      localStorage.setItem("master", master);
 
       navigate("/dashboard");
 
