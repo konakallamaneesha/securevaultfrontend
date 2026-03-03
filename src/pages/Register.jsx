@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,7 +22,7 @@ export default function Register() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { name, email, password, masterPassword } = form;
 
     if (!name || !email || !password || !masterPassword || !confirmPassword) {
@@ -42,36 +43,38 @@ export default function Register() {
       return;
     }
 
-    localStorage.setItem("user", JSON.stringify(form));
+    try {
+      await API.post("/auth/register", {
+        name,
+        email,
+        password,
+        masterPassword,
+      });
 
-    setError(false);
-    setMessage("Registered Successfully ✅");
+      setError(false);
+      setMessage("Registered Successfully ✅");
 
-    // ✅ CLEAR FORM
-    setForm({
-      name: "",
-      email: "",
-      password: "",
-      masterPassword: "",
-    });
+      // Clear form
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        masterPassword: "",
+      });
+      setConfirmPassword("");
 
-    setConfirmPassword("");
+      setTimeout(() => {
+        setMessage("");
+      }, 2000);
 
-    // ✅ AUTO HIDE MESSAGE
-    setTimeout(() => {
-      setMessage("");
-    }, 2000);
+    } catch (err) {
+      setError(true);
+      setMessage(err.response?.data?.message || "Registration failed ❌");
+    }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
+    <div style={{ display: "flex", height: "100vh", justifyContent: "center", alignItems: "center" }}>
       <div className="card" style={{ width: "420px" }}>
         <h2 style={{ marginBottom: "20px", textAlign: "center" }}>
           🔐 Create Account
@@ -80,28 +83,21 @@ export default function Register() {
         <input
           placeholder="Name"
           value={form.name}
-          onChange={(e) =>
-            setForm({ ...form, name: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
 
         <input
           placeholder="Email"
           value={form.email}
-          onChange={(e) =>
-            setForm({ ...form, email: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
-        {/* Password */}
         <div style={{ position: "relative" }}>
           <input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={form.password}
-            onChange={(e) =>
-              setForm({ ...form, password: e.target.value })
-            }
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
           />
 
           <span
@@ -126,7 +122,6 @@ export default function Register() {
           onChange={(e) => setConfirmPassword(e.target.value)}
         />
 
-        {/* Master Password */}
         <input
           type="password"
           placeholder="Master Password (Vault Key)"
@@ -136,7 +131,6 @@ export default function Register() {
           }
         />
 
-        {/* Buttons */}
         <div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
           <button onClick={handleSubmit} style={{ flex: 1 }}>
             Register
@@ -155,7 +149,6 @@ export default function Register() {
           </button>
         </div>
 
-        {/* Message */}
         {message && (
           <div
             style={{

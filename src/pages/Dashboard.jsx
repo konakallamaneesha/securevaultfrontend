@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import API from "../api";
 
 export default function Dashboard() {
   const [passwords, setPasswords] = useState([]);
@@ -11,9 +12,17 @@ export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("passwords")) || [];
-    setPasswords(data);
+    fetchPasswords();
   }, []);
+
+  const fetchPasswords = async () => {
+    try {
+      const res = await API.get("/passwords");
+      setPasswords(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const togglePassword = (id) => {
     setShowPassword({
@@ -22,22 +31,23 @@ export default function Dashboard() {
     });
   };
 
-  // ✅ COPY WITHOUT ALERT
   const copyPassword = (password) => {
     navigator.clipboard.writeText(password);
-
-    setCopyMsg("Password copied successfully ");
+    setCopyMsg("Password copied successfully");
 
     setTimeout(() => {
       setCopyMsg("");
     }, 2000);
   };
 
-  const confirmDelete = () => {
-    const updated = passwords.filter((item) => item.id !== deleteId);
-    setPasswords(updated);
-    localStorage.setItem("passwords", JSON.stringify(updated));
-    setDeleteId(null);
+  const confirmDelete = async () => {
+    try {
+      await API.delete(`/passwords/${deleteId}`);
+      setPasswords(passwords.filter((item) => item._id !== deleteId));
+      setDeleteId(null);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const filtered = passwords.filter(
@@ -52,21 +62,19 @@ export default function Dashboard() {
 
       <div style={{ flex: 1, padding: "40px", marginLeft: "250px" }}>
 
-        {/* HEADER */}
         <div
-  style={{
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    background: "#020617",
-
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "25px",
-    paddingBottom: "10px",
-  }}
->
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+            background: "#020617",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "25px",
+            paddingBottom: "10px",
+          }}
+        >
           <h2>Stored Passwords</h2>
 
           <input
@@ -77,7 +85,6 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* COPY MESSAGE */}
         {copyMsg && (
           <div
             style={{
@@ -98,18 +105,18 @@ export default function Dashboard() {
         )}
 
         {filtered.map((item) => (
-          <div key={item.id} className="card" style={{ marginBottom: "15px" }}>
+          <div key={item._id} className="card" style={{ marginBottom: "15px" }}>
             <p><strong>Website:</strong> {item.website}</p>
             <p><strong>Username:</strong> {item.username}</p>
 
             <p>
               <strong>Password:</strong>{" "}
-              {showPassword[item.id] ? item.password : "••••••••"}
+              {showPassword[item._id] ? item.password : "••••••••"}
             </p>
 
             <div style={{ marginTop: "10px" }}>
               <button
-                onClick={() => togglePassword(item.id)}
+                onClick={() => togglePassword(item._id)}
                 style={{
                   marginRight: "10px",
                   background: "transparent",
@@ -117,7 +124,7 @@ export default function Dashboard() {
                   color: "#22c55e",
                 }}
               >
-                {showPassword[item.id] ? "Hide" : "Show"}
+                {showPassword[item._id] ? "Hide" : "Show"}
               </button>
 
               <button
@@ -133,7 +140,7 @@ export default function Dashboard() {
               </button>
 
               <button
-                onClick={() => setDeleteId(item.id)}
+                onClick={() => setDeleteId(item._id)}
                 style={{
                   background: "transparent",
                   border: "1px solid red",
@@ -146,7 +153,6 @@ export default function Dashboard() {
           </div>
         ))}
 
-        {/* DELETE MODAL */}
         {deleteId && (
           <div
             style={{

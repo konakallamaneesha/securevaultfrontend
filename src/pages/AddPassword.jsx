@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
+import API from "../api";
 import { FaGlobe, FaUser, FaLock } from "react-icons/fa";
 
 export default function AddPassword() {
   const location = useLocation();
-
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [form, setForm] = useState({
-    id: null,
     website: "",
     username: "",
     password: "",
@@ -18,22 +17,15 @@ export default function AddPassword() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    if (location.state) {
-      setForm(location.state);
-    }
-  }, [location.state]);
-
   const handleChange = (e) => {
     setMessage("");
-
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
 
-  const savePassword = () => {
+  const savePassword = async () => {
     const { website, username, password } = form;
 
     if (!website || !username || !password) {
@@ -42,35 +34,36 @@ export default function AddPassword() {
       return;
     }
 
-    let stored = JSON.parse(localStorage.getItem("passwords")) || [];
+    try {
+      const token = localStorage.getItem("token");
 
-    if (form.id) {
-      stored = stored.map((item) =>
-        item.id === form.id ? form : item
+      await API.post(
+        "/passwords",
+        form,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
       );
-    } else {
-      const newData = {
-        ...form,
-        id: Date.now(),
-      };
-      stored.push(newData);
+
+      setError(false);
+      setMessage("Password Saved Successfully ✅");
+
+      setForm({
+        website: "",
+        username: "",
+        password: "",
+      });
+
+      setTimeout(() => {
+        setMessage("");
+      }, 3000);
+
+    } catch (err) {
+      setError(true);
+      setMessage("Failed to save password ❌");
     }
-
-    localStorage.setItem("passwords", JSON.stringify(stored));
-
-    setError(false);
-    setMessage("Password Saved Successfully ✅");
-
-    setForm({
-      id: null,
-      website: "",
-      username: "",
-      password: "",
-    });
-
-    setTimeout(() => {
-      setMessage("");
-    }, 3000);
   };
 
   const inputBox = (icon, name, placeholder) => (
@@ -110,17 +103,14 @@ export default function AddPassword() {
     <div style={{ display: "flex" }}>
       <Sidebar user={user} />
 
-      {/* ⭐ PERFECT CENTER CONTAINER */}
       <div
         style={{
           flex: 1,
           marginLeft: "250px",
-          minHeight: "100vh",   // ⭐ important
-
+          minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-
           padding: "20px",
         }}
       >
@@ -155,7 +145,6 @@ export default function AddPassword() {
                     : "rgba(34,197,94,0.15)",
                   color: error ? "#ef4444" : "#22c55e",
                   textAlign: "center",
-                  fontSize: "14px",
                 }}
               >
                 {message}

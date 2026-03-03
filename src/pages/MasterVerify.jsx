@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
 export default function MasterVerify() {
   const navigate = useNavigate();
@@ -7,14 +8,25 @@ export default function MasterVerify() {
   const [master, setMaster] = useState("");
   const [error, setError] = useState("");
 
-  const verifyMaster = () => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+  const verifyMaster = async () => {
+    setError("");
 
-    if (master === storedUser.masterPassword) {
-      localStorage.setItem("token", "demo-token");
+    try {
+      const token = localStorage.getItem("token");
+
+      await API.post(
+        "/auth/verify-master",
+        { masterPassword: master },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
 
       navigate("/dashboard");
-    } else {
+
+    } catch (err) {
       setError("Invalid Master Password ❌");
     }
   };

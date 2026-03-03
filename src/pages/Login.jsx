@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,24 +12,19 @@ export default function Login() {
 
   const [error, setError] = useState("");
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError("");
 
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    try {
+      const res = await API.post("/auth/login", form);
 
-    if (!storedUser) {
-      setError("No user found. Please register first ");
-      return;
-    }
+      // Store JWT token
+      localStorage.setItem("token", res.data.token);
 
-    if (
-      form.email === storedUser.email &&
-      form.password === storedUser.password
-    ) {
-      // ✅ Login success → go to master verify page
       navigate("/master");
-    } else {
-      setError("Invalid email or password ");
+
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid email or password ❌");
     }
   };
 

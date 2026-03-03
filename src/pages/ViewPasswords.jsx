@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import API from "../api";
 
 export default function ViewPasswords() {
   const [passwords, setPasswords] = useState([]);
 
   useEffect(() => {
-    const data =
-      JSON.parse(localStorage.getItem("passwords")) || [];
-    setPasswords(data);
+    fetchPasswords();
   }, []);
 
-  const deletePassword = (id) => {
-    const updated = passwords.filter((p) => p.id !== id);
-    setPasswords(updated);
-    localStorage.setItem("passwords", JSON.stringify(updated));
+  const fetchPasswords = async () => {
+    try {
+      const res = await API.get("/passwords");
+      setPasswords(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deletePassword = async (id) => {
+    try {
+      await API.delete(`/passwords/${id}`);
+      setPasswords(passwords.filter((p) => p._id !== id));
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
@@ -30,7 +41,7 @@ export default function ViewPasswords() {
         ) : (
           passwords.map((item) => (
             <div
-              key={item.id}
+              key={item._id}
               className="card"
               style={{
                 marginTop: "15px",
@@ -46,7 +57,7 @@ export default function ViewPasswords() {
               </div>
 
               <button
-                onClick={() => deletePassword(item.id)}
+                onClick={() => deletePassword(item._id)}
                 style={{
                   background: "#ef4444",
                 }}
