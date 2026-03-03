@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import API from "../api";
+import API from "../services/api";
 import { FaGlobe, FaUser, FaLock } from "react-icons/fa";
 
 export default function AddPassword() {

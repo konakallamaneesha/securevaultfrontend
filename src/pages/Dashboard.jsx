@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import API from "../api";
+import API from "../services/api";
 
 export default function Dashboard() {
   const [passwords, setPasswords] = useState([]);
